@@ -70,8 +70,10 @@ npm install
 Next, install the server dependencies.
 
 ```bash
+git submodule update --init
 cd server
 npm install
+node server.js
 ```
 
 ## Play
