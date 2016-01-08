@@ -91,7 +91,7 @@ export class App {
 
     let creds = JSON.stringify({ username: username.value, password: password.value });
 
-    var headers = new Headers();
+    let headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
     this.http.post('http://localhost:3001/sessions/create', creds, {
@@ -110,8 +110,8 @@ export class App {
 
   getSecretQuote() {
 
-    var jwt = localStorage.getItem('id_token');
-    var authHeader = new Headers();
+    let jwt = localStorage.getItem('id_token');
+    let authHeader = new Headers();
     if(jwt) {
       authHeader.append('Authorization', 'Bearer ' + jwt);      
     }
