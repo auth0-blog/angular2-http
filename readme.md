@@ -3,6 +3,21 @@
 
 This is the code for [Auth0's tutorial on Angular 2 Http](). The tutorial covers how to make `GET` and `POST` requests, and how to set some options such as modified headers.
 
+## Intallation
+
+```bash
+npm submodule update --init
+cd server && node server.js
+```
+
+## Running the App
+```
+cd ..
+gulp play
+```
+
+The app will be served at `localhost:9001`.
+
 Some examples:
 
 ```js
@@ -10,38 +25,38 @@ Some examples:
 
 getRandomQuote() {
   this.http.get('http://localhost:3001/api/random-quote')
-    .map(res => res.text())
     .subscribe(
-      data => this.randomQuote = data,
-      err => this.logError(err),
+      data => this.randomQuote = data.text(),
+      err => this.logError(err.text()),
       () => console.log('Random Quote Complete')
     );
 }
 
-authenticate(data) {
-  var username = data.credentials.username;
-  var password = data.credentials.password;
+authenticate(username, password) {
 
-  var creds = "username=" + username + "&password=" + password;
+  let creds = JSON.stringify({ username: username.value, password: password.value });
 
-  var headers = new Headers();
-  headers.append('Content-Type', 'application/x-www-form-urlencoded');
+  let headers = new Headers();
+  headers.append('Content-Type', 'application/json');
 
   this.http.post('http://localhost:3001/sessions/create', creds, {
     headers: headers
     })
-    .map(res => res.json())
     .subscribe(
-      data => this.saveJwt(data.id_token),
-      err => this.logError(err),
+      data => {
+        this.saveJwt(data.json().id_token);
+        username.value = null;
+        password.value = null;
+      },
+      err => this.logError(err.json().message),
       () => console.log('Authentication Complete')
     );
-}
+  }
 
 getSecretQuote() {
 
-  var jwt = localStorage.getItem('id_token');
-  var authHeader = new Headers();
+  let jwt = localStorage.getItem('id_token');
+  let authHeader = new Headers();
   if(jwt) {
     authHeader.append('Authorization', 'Bearer ' + jwt);      
   }
@@ -49,43 +64,14 @@ getSecretQuote() {
   this.http.get('http://localhost:3001/api/protected/random-quote', {
     headers: authHeader
   })
-  .map(res => res.text())
   .subscribe(
-    data => this.secretQuote = data,
-    err => this.logError(err),
+    data => this.secretQuote = data.text(),
+    err => this.logError(err.text()),
     () => console.log('Secret Quote Complete')
   );
 
-}
+  }
 ```
-
-## Installation
-
-Clone the repo and install dependencies
-
-```bash
-npm install
-```
-
-Next, install the server dependencies.
-
-```bash
-git submodule update --init
-cd server
-npm install
-node server.js
-```
-
-## Play
-
-After completing installation, use the `play` task to start the app.
-
-```bash
-cd ..
-gulp play
-```
-
-The app will be served at `localhost:9001`.
 
 ## License
 MIT

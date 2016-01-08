@@ -1,11 +1,7 @@
-import {Component, View, bootstrap, provide} from 'angular2/angular2';
-import {Http, Headers, HTTP_PROVIDERS} from 'angular2/http';
-import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-
-class CredentialsModel {
-  username: string;
-  password: string;
-}
+import { bootstrap } from 'angular2/platform/browser';
+import { Component, View } from 'angular2/core';
+import { CORE_DIRECTIVES, FORM_DIRECTIVES } from 'angular2/common';
+import { Http, Headers, HTTP_PROVIDERS } from 'angular2/http';
 
 @Component({
   selector: 'app'
@@ -19,11 +15,12 @@ class CredentialsModel {
 
   <section>
     <h2>Login</h2>
-    <form #f="form" (ng-submit)="authenticate(f.value)">
+    <form role="form">
       <div ng-control-group="credentials">
         <label for="username">Username</label>
         <input
           type="text"
+          #username
           id="username"
           ng-control="username"
           required>
@@ -31,12 +28,13 @@ class CredentialsModel {
         <label for="password">Password</label>
         <input
           type="password"
+          #password
           id="password"
           ng-control="password"
           required>
       </div>
 
-      <button>Login!</button>
+      <button (click)="authenticate(username, password)">Login!</button>
 
     </form>
   </section>
@@ -60,8 +58,9 @@ class CredentialsModel {
 export class App {
   title: string;
   data: string;
-  credentials: Object = new CredentialsModel();
   quote: string;
+  username: string;
+  password: string;
   randomQuote: string;
   secretQuote: string;
 
@@ -81,30 +80,30 @@ export class App {
 
   getRandomQuote() {
     this.http.get('http://localhost:3001/api/random-quote')
-      .map(res => res.text())
       .subscribe(
-        data => this.randomQuote = data,
-        err => this.logError(err),
+        data => this.randomQuote = data.text(),
+        err => this.logError(err.text()),
         () => console.log('Random Quote Complete')
       );
   }
 
-  authenticate(data) {
-    var username = data.credentials.username;
-    var password = data.credentials.password;
+  authenticate(username, password) {
 
-    var creds = "username=" + username + "&password=" + password;
+    let creds = JSON.stringify({ username: username.value, password: password.value });
 
     var headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('Content-Type', 'application/json');
 
     this.http.post('http://localhost:3001/sessions/create', creds, {
       headers: headers
       })
-      .map(res => res.json())
       .subscribe(
-        data => this.saveJwt(data.id_token),
-        err => this.logError(err),
+        data => {
+          this.saveJwt(data.json().id_token);
+          username.value = null;
+          password.value = null;
+        },
+        err => this.logError(err.json().message),
         () => console.log('Authentication Complete')
       );
   }
@@ -120,10 +119,9 @@ export class App {
     this.http.get('http://localhost:3001/api/protected/random-quote', {
       headers: authHeader
     })
-    .map(res => res.text())
     .subscribe(
-      data => this.secretQuote = data,
-      err => this.logError(err),
+      data => this.secretQuote = data.text(),
+      err => this.logError(err.text()),
       () => console.log('Secret Quote Complete')
     );
 

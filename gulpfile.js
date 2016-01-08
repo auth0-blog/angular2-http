@@ -11,15 +11,11 @@ gulp.task('clean', function (done) {
 
 gulp.task('ts2js', function () {
     var typescript = require('gulp-typescript');
-    var tsResult = gulp.src(PATHS.src)
-        .pipe(typescript({
-            noImplicitAny: true,
-            module: 'system',
-            target: 'ES5',
-            moduleResolution: 'node',
-            emitDecoratorMetadata: true,
-            experimentalDecorators: true
-        }));
+    var tscConfig = require('./tsconfig.json');
+
+    var tsResult = gulp
+        .src(PATHS.src)
+        .pipe(typescript(tscConfig.compilerOptions));
 
     return tsResult.js.pipe(gulp.dest('dist'));
 });
@@ -30,7 +26,7 @@ gulp.task('play', ['ts2js'], function () {
     var serveStatic = require('serve-static');
     var open = require('open');
 
-    var port = 9001, app;
+    var port = 9000, app;
 
     gulp.watch(PATHS.src, ['ts2js']);
 
@@ -40,3 +36,4 @@ gulp.task('play', ['ts2js'], function () {
     });
 });
 
+gulp.task('default', ['play']);
