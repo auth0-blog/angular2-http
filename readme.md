@@ -13,6 +13,7 @@ cd server && node server.js
 ## Running the App
 ```
 cd ..
+npm install
 gulp play
 ```
 
