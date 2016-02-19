@@ -6,8 +6,10 @@ This is the code for [Auth0's tutorial on Angular 2 Http](). The tutorial covers
 ## Intallation
 
 ```bash
-npm submodule update --init
-cd server && node server.js
+git submodule update --init
+cd server 
+npm install
+node server.js
 ```
 
 ## Running the App
