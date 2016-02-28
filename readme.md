@@ -19,7 +19,7 @@ npm install
 gulp play
 ```
 
-The app will be served at `localhost:9001`.
+The app will be served at `localhost:9000`.
 
 Some examples:
 
